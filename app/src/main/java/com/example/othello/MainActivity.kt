@@ -36,11 +36,12 @@ class MainActivity : AppCompatActivity() {
                     columnSpec = GridLayout.spec(col)
                 }
 
+                //todo add click listener to change piece
                 board.addView(imageView, params)
             }
         }
 
-
+    //todo set the four mandatory pieces on the board
 
 
     }
