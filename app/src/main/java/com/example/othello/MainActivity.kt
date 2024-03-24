@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import androidx.gridlayout.widget.GridLayout
 import android.widget.ImageView
 import androidx.lifecycle.ViewModelProvider
+import com.google.android.material.snackbar.Snackbar
 
 class MainActivity : AppCompatActivity() {
     lateinit var viewModel: MainActivityViewModel
@@ -37,6 +38,14 @@ class MainActivity : AppCompatActivity() {
                     }
                     scaleType = ImageView.ScaleType.CENTER_CROP
                     setPadding(0, 0, 0, 0)
+
+                    setOnClickListener { view ->
+                        val index = board.indexOfChild(view)
+                        val row = index / board.columnCount
+                        val col = index % board.columnCount
+                        viewModel.move(row, col)
+                    }
+
                 }
                 val params = GridLayout.LayoutParams().apply {
                     width = (50 * resources.displayMetrics.density + 0.5f).toInt()
@@ -45,7 +54,6 @@ class MainActivity : AppCompatActivity() {
                     columnSpec = GridLayout.spec(colCount)
                 }
 
-                //todo add click listener to change piece
                 board.addView(imageView, params)
                 colCount++
             }
@@ -54,7 +62,28 @@ class MainActivity : AppCompatActivity() {
         }
 
 
+        viewModel.validMoveFlag.observe(this) {
+            if(viewModel.getValidMove() == false) {
+                Snackbar.make(
+                    board,
+                    "Invalid move - try again",
+                    Snackbar.LENGTH_LONG
+                ).show()
+            }
+        }
 
+        viewModel.boardState.observe(this) { boardState ->
+            for (row in 0 until boardState.size) {
+                for (col in 0 until boardState[row].size) {
+                    val imageView = board.getChildAt(row * boardState.size + col) as ImageView
+                    when (boardState[row][col]) {
+                        "blank" -> imageView.setImageResource(R.drawable.blank_tile)
+                        "white" -> imageView.setImageResource(R.drawable.white_tile)
+                        "black" -> imageView.setImageResource(R.drawable.black_tile)
+                    }
+                }
+            }
+        }
 
 
         //OLD LOGIC FOR BUILDING BOARD WITHOUT VIEWMODEL

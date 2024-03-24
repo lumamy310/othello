@@ -1,5 +1,7 @@
 package com.example.othello
 
+import android.content.ContentValues.TAG
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -47,16 +49,76 @@ class MainActivityViewModel: ViewModel() {
     }
 
     fun move(row: Int, col: Int) {
-        val board = _boardState.value
+        val board = _boardState.value!!
+        var color = ""
+
+        if(_turn.value == 0) {
+            color = "black"
+        }
+        else {
+            color = "white"
+        }
 
         //check for valid move
-        if(board!![row][col] != "blank"){
+        val directions = listOf(
+            Pair(-1, -1), Pair(-1, 0), Pair(-1, 1),
+            Pair(0, -1), /* Current position */ Pair(0, 1),
+            Pair(1, -1), Pair(1, 0), Pair(1, 1)
+        )
+
+        Log.d(TAG, "row $row col $col of selected tile")
+
+        if (board!![row][col] != "blank") {
             _validMoveFlag.value = false
             return
         }
-        if(_turn.value == 0){
 
+        var validMove = false
+        for ((dx, dy) in directions) {
+            var r = row + dx
+            var c = col + dy
+            var foundOpponent = false
+            val cellsToFlip = mutableListOf<Pair<Int, Int>>()
+
+            while (r in board!!.indices && c in board!![0].indices) {
+                if (board!![r][c] == color) {
+                    if (foundOpponent) {
+                        validMove = true
+                        cellsToFlip.forEach { (flipRow, flipCol) ->
+                            board[flipRow][flipCol] = color
+                        }
+                        board[row][col] = color
+                    }
+                    break
+                } else if (board[r][c] == "blank") {
+                    break
+                } else {
+                    foundOpponent = true
+                    cellsToFlip.add(Pair(r, c))
+                }
+                r += dx
+                c += dy
+            }
+        }
+
+        _validMoveFlag.value = validMove
+        if(validMove == true && _turn.value == 0) {
+            _boardState.value = board!!
+            _turn.value = 1
+        }
+        else if (validMove == true && _turn.value == 1) {
+            _boardState.value = board!!
+            _turn.value = 0
         }
     }
+
+    fun getValidMove(): Boolean? {
+        return _validMoveFlag.value
+    }
+
+    fun getBoard(): Array<Array<String>>? {
+        return _boardState.value
+    }
+
 
 }
