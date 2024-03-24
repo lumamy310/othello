@@ -15,33 +15,84 @@ class MainActivity : AppCompatActivity() {
         viewModel = ViewModelProvider(this).get(MainActivityViewModel::class.java)
         val board = findViewById<GridLayout>(R.id.gridBoard)
 
-        val numRows = 8
-        val numCols = 8
-        for (row in 0 until numRows) {
-            for (col in 0 until numCols) {
+
+        if(viewModel.boardExists.value == false){
+            viewModel.resetBoard()
+        }
+        var rowCount = 0
+        var colCount = 0
+        for(row in viewModel.boardState.value!!) {
+            for (col in row) {
                 val imageView = ImageView(this).apply {
                     layoutParams = ViewGroup.LayoutParams(
                         ViewGroup.LayoutParams.WRAP_CONTENT,
                         ViewGroup.LayoutParams.WRAP_CONTENT
                     )
-                    setImageResource(R.drawable.blank_tile) // Set your image resource here
+                    if (col == "blank") {
+                        setImageResource(R.drawable.blank_tile)
+                    } else if (col == "white") {
+                        setImageResource(R.drawable.white_tile)
+                    } else {
+                        setImageResource(R.drawable.black_tile)
+                    }
                     scaleType = ImageView.ScaleType.CENTER_CROP
-                    setPadding(0,0,0,0) // Optional: Set padding between ImageViews
+                    setPadding(0, 0, 0, 0)
                 }
-
                 val params = GridLayout.LayoutParams().apply {
-                    width = (50 * resources.displayMetrics.density + 0.5f).toInt() // Convert 50dp to pixels
+                    width = (50 * resources.displayMetrics.density + 0.5f).toInt()
                     height = (50 * resources.displayMetrics.density + 0.5f).toInt()
-                    rowSpec = GridLayout.spec(row)
-                    columnSpec = GridLayout.spec(col)
+                    rowSpec = GridLayout.spec(rowCount)
+                    columnSpec = GridLayout.spec(colCount)
                 }
 
                 //todo add click listener to change piece
                 board.addView(imageView, params)
+                colCount++
             }
+            colCount = 0
+            rowCount++
         }
 
-    //todo set the four mandatory pieces on the board
+
+
+
+
+        //OLD LOGIC FOR BUILDING BOARD WITHOUT VIEWMODEL
+//        val numRows = 8
+//        val numCols = 8
+//        for (row in 0 until numRows) {
+//            for (col in 0 until numCols) {
+//                val imageView = ImageView(this).apply {
+//                    layoutParams = ViewGroup.LayoutParams(
+//                        ViewGroup.LayoutParams.WRAP_CONTENT,
+//                        ViewGroup.LayoutParams.WRAP_CONTENT
+//                    )
+//                    if((row == 3 && col == 3) || (row == 4 && col == 4)) {
+//                        setImageResource(R.drawable.white_tile)
+//                    }
+//                    else if ((row == 3 && col == 4) || (row == 4 && col == 3)) {
+//                        setImageResource(R.drawable.black_tile)
+//                    }
+//                    else {
+//                        setImageResource(R.drawable.blank_tile)
+//                    }
+//                    scaleType = ImageView.ScaleType.CENTER_CROP
+//                    setPadding(0,0,0,0)
+//                }
+//
+//                val params = GridLayout.LayoutParams().apply {
+//                    width = (50 * resources.displayMetrics.density + 0.5f).toInt()
+//                    height = (50 * resources.displayMetrics.density + 0.5f).toInt()
+//                    rowSpec = GridLayout.spec(row)
+//                    columnSpec = GridLayout.spec(col)
+//                }
+//
+//                //todo add click listener to change piece
+//                board.addView(imageView, params)
+//            }
+//        }
+
+
 
 
     }
