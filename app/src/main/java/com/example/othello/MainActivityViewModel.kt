@@ -24,6 +24,11 @@ class MainActivityViewModel: ViewModel() {
     private val _validMoveFlag = MutableLiveData<Boolean>()
     val validMoveFlag: LiveData<Boolean> get() = _validMoveFlag
 
+    private val _blackCounter = MutableLiveData<Int>(2)
+    private val _whiteCounter = MutableLiveData<Int>(2)
+    val blackCounter: LiveData<Int> get() = _blackCounter
+    val whiteCounter: LiveData<Int> get() = _whiteCounter
+
     fun setUid(uid: String) {
         _uid.value = uid
     }
@@ -32,13 +37,11 @@ class MainActivityViewModel: ViewModel() {
         val board = Array(8) { Array(8) { "blank" } }
         for (row in 0 until 8) {
             for (col in 0 until 8) {
-                if((row == 3 && col == 3) || (row == 4 && col == 4)) {
+                if ((row == 3 && col == 3) || (row == 4 && col == 4)) {
                     board[row][col] = "white"
-                }
-                else if ((row == 3 && col == 4) || (row == 4 && col == 3)) {
+                } else if ((row == 3 && col == 4) || (row == 4 && col == 3)) {
                     board[row][col] = "black"
-                }
-                else{
+                } else {
                     board[row][col] = "blank"
                 }
             }
@@ -52,10 +55,9 @@ class MainActivityViewModel: ViewModel() {
         val board = _boardState.value!!
         var color = ""
 
-        if(_turn.value == 0) {
+        if (_turn.value == 0) {
             color = "black"
-        }
-        else {
+        } else {
             color = "white"
         }
 
@@ -102,11 +104,12 @@ class MainActivityViewModel: ViewModel() {
         }
 
         _validMoveFlag.value = validMove
-        if(validMove == true && _turn.value == 0) {
+        if (validMove == true && _turn.value == 0) {
             _boardState.value = board!!
+            updateCounters()
             _turn.value = 1
-        }
-        else if (validMove == true && _turn.value == 1) {
+        } else if (validMove == true && _turn.value == 1) {
+            updateCounters()
             _boardState.value = board!!
             _turn.value = 0
         }
@@ -115,6 +118,24 @@ class MainActivityViewModel: ViewModel() {
     fun getValidMove(): Boolean? {
         return _validMoveFlag.value
     }
+
+    fun updateCounters() {
+        var whiteCount = 0
+        var blackCount = 0
+        for (row in _boardState.value!!) {
+            for (col in row) {
+                if (col == "white") {
+                    whiteCount++
+                } else if (col == "black") {
+                    blackCount++
+                }
+            }
+        }
+        _whiteCounter.value = whiteCount
+        _blackCounter.value = blackCount
+    }
+
+
 
 
 }

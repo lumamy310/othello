@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.ViewGroup
 import androidx.gridlayout.widget.GridLayout
 import android.widget.ImageView
+import android.widget.TextView
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.snackbar.Snackbar
 
@@ -15,6 +16,9 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         viewModel = ViewModelProvider(this).get(MainActivityViewModel::class.java)
         val board = findViewById<GridLayout>(R.id.gridBoard)
+        val turnText = findViewById<TextView>(R.id.colorName)
+        val blackCount = findViewById<TextView>(R.id.blackNumber)
+        val whiteCount = findViewById<TextView>(R.id.whiteNumber)
 
 
         if(viewModel.boardExists.value == false){
@@ -85,7 +89,26 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        viewModel.turn.observe(this) { turn ->
+            val whiteStr = "White's "
+            val blackStr = "Black's "
+            if(turn == 0) {
+                turnText.setText(blackStr)
+            }
+            else {
+                turnText.setText(whiteStr)
+            }
+        }
 
+        viewModel.blackCounter.observe(this) { blackCounter ->
+            val newCount = blackCounter.toString()
+            blackCount.setText(newCount)
+        }
+
+        viewModel.whiteCounter.observe(this) { whiteCounter ->
+            val newCount = whiteCounter.toString()
+            whiteCount.setText(newCount)
+        }
 
 
     }

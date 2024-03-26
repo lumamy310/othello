@@ -20,4 +20,92 @@
         app:layout_constraintTop_toTopOf="parent"
         app:rowCount="8" />
 
+    <TextView
+        android:id="@+id/whiteCounter"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="White: "
+        android:textSize="34sp"
+        app:layout_constraintStart_toStartOf="@+id/blackCounter"
+        app:layout_constraintTop_toBottomOf="@+id/blackCounter" />
+
+    <TextView
+        android:id="@+id/blackCounter"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="32dp"
+        android:layout_marginBottom="64dp"
+        android:text="Black: "
+        android:textSize="34sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/guideline2"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/gridBoard" />
+
+    <TextView
+        android:id="@+id/blackNumber"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="0"
+        android:textSize="34sp"
+        app:layout_constraintStart_toEndOf="@+id/blackCounter"
+        app:layout_constraintTop_toTopOf="@+id/blackCounter" />
+
+    <TextView
+        android:id="@+id/whiteNumber"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="0"
+        android:textSize="34sp"
+        app:layout_constraintStart_toEndOf="@+id/whiteCounter"
+        app:layout_constraintTop_toTopOf="@+id/whiteCounter" />
+
+    <TextView
+        android:id="@+id/colorName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="White's "
+        app:layout_constraintBottom_toTopOf="@+id/blackNumber"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.49"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/gridBoard" />
+
+    <TextView
+        android:id="@+id/turnText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="turn"
+        app:layout_constraintBottom_toBottomOf="@+id/colorName"
+        app:layout_constraintStart_toEndOf="@+id/colorName"
+        app:layout_constraintTop_toTopOf="@+id/colorName" />
+
+    <Button
+        android:id="@+id/settingsButton"
+        android:layout_width="110dp"
+        android:layout_height="wrap_content"
+        android:text="Settings"
+        app:layout_constraintBottom_toBottomOf="@+id/whiteCounter"
+        app:layout_constraintEnd_toEndOf="@+id/statsButton"
+        app:layout_constraintStart_toStartOf="@+id/statsButton"
+        app:layout_constraintTop_toTopOf="@+id/whiteCounter" />
+
+    <Button
+        android:id="@+id/statsButton"
+        android:layout_width="110dp"
+        android:layout_height="wrap_content"
+        android:text="Statistics"
+        app:layout_constraintBottom_toBottomOf="@+id/blackCounter"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/guideline2"
+        app:layout_constraintTop_toTopOf="@+id/blackCounter" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.5" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
