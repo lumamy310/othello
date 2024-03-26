@@ -116,9 +116,5 @@ class MainActivityViewModel: ViewModel() {
         return _validMoveFlag.value
     }
 
-    fun getBoard(): Array<Array<String>>? {
-        return _boardState.value
-    }
-
 
 }
