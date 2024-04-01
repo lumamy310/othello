@@ -68,18 +68,8 @@
         android:text="White's "
         app:layout_constraintBottom_toTopOf="@+id/blackNumber"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.49"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/gridBoard" />
-
-    <TextView
-        android:id="@+id/turnText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="turn"
-        app:layout_constraintBottom_toBottomOf="@+id/colorName"
-        app:layout_constraintStart_toEndOf="@+id/colorName"
-        app:layout_constraintTop_toTopOf="@+id/colorName" />
 
     <Button
         android:id="@+id/settingsButton"

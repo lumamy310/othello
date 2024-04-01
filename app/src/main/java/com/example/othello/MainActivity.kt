@@ -44,10 +44,15 @@ class MainActivity : AppCompatActivity() {
                     setPadding(0, 0, 0, 0)
 
                     setOnClickListener { view ->
-                        val index = board.indexOfChild(view)
-                        val row = index / board.columnCount
-                        val col = index % board.columnCount
-                        viewModel.move(row, col)
+                        if((viewModel.whiteWin.value == true) || (viewModel.blackWin.value == true) || (viewModel.draw.value == true)) {
+                            print("no click allowed")
+                        }
+                        else {
+                            val index = board.indexOfChild(view)
+                            val row = index / board.columnCount
+                            val col = index % board.columnCount
+                            viewModel.move(row, col)
+                        }
                     }
 
                 }
@@ -71,7 +76,7 @@ class MainActivity : AppCompatActivity() {
                 Snackbar.make(
                     board,
                     "Invalid move - try again",
-                    Snackbar.LENGTH_LONG
+                    Snackbar.LENGTH_SHORT
                 ).show()
             }
         }
@@ -90,13 +95,21 @@ class MainActivity : AppCompatActivity() {
         }
 
         viewModel.turn.observe(this) { turn ->
-            val whiteStr = "White's "
-            val blackStr = "Black's "
+            val whiteStr = "White's turn"
+            val blackStr = "Black's turn"
             if(turn == 0) {
                 turnText.setText(blackStr)
             }
             else {
                 turnText.setText(whiteStr)
+            }
+            if(viewModel.whitePass.value == true && viewModel.blackPass.value == true) {
+                viewModel.checkWin()
+                return@observe
+            }
+            else if(viewModel.hasValidMove() == false) {
+                Snackbar.make(board, "No valid moves - passing", Snackbar.LENGTH_SHORT).show()
+                viewModel.nextTurn()
             }
         }
 
@@ -108,6 +121,30 @@ class MainActivity : AppCompatActivity() {
         viewModel.whiteCounter.observe(this) { whiteCounter ->
             val newCount = whiteCounter.toString()
             whiteCount.setText(newCount)
+        }
+
+        viewModel.whiteWin.observe(this) { win ->
+            if(win == true) {
+                val winText = "White wins!"
+                Snackbar.make(board, "White wins!", Snackbar.LENGTH_LONG).show()
+                turnText.setText(winText)
+            }
+        }
+
+        viewModel.blackWin.observe(this) { win ->
+            if(win == true) {
+                val winText = "Black wins!"
+                Snackbar.make(board, "Black wins!", Snackbar.LENGTH_LONG).show()
+                turnText.setText(winText)
+            }
+        }
+
+        viewModel.draw.observe(this) { win ->
+            if(win == true) {
+                val winText = "Draw"
+                Snackbar.make(board, "Draw!", Snackbar.LENGTH_LONG).show()
+                turnText.setText(winText)
+            }
         }
 
 
