@@ -1,5 +1,9 @@
 package com.example.othello
 
+import android.content.Context
+import android.content.pm.ActivityInfo
+import android.hardware.Sensor
+import android.hardware.SensorEvent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.ViewGroup
@@ -8,18 +12,35 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.snackbar.Snackbar
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
+import android.widget.Button
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), SensorEventListener {
     lateinit var viewModel: MainActivityViewModel
+    private lateinit var sensorManager: SensorManager
+    private var gyroscope: Sensor? = null
+    private val lastGyroscope = FloatArray(3)
+    private var isGyroscopeInitialized = false
+    private var cursorX = 0f
+    private var cursorY = 0f
+    private val sensitivity = 50.0f
+    private lateinit var cursor: ImageView
+    private lateinit var board: GridLayout
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         setContentView(R.layout.activity_main)
         viewModel = ViewModelProvider(this).get(MainActivityViewModel::class.java)
-        val board = findViewById<GridLayout>(R.id.gridBoard)
+        sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
+        gyroscope = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE)
+        board = findViewById(R.id.gridBoard)
         val turnText = findViewById<TextView>(R.id.colorName)
         val blackCount = findViewById<TextView>(R.id.blackNumber)
         val whiteCount = findViewById<TextView>(R.id.whiteNumber)
-
+        val clickBtn = findViewById<Button>(R.id.clickbtn)
+        cursor = findViewById(R.id.cursor)
 
         if(viewModel.boardExists.value == false){
             viewModel.resetBoard()
@@ -43,17 +64,17 @@ class MainActivity : AppCompatActivity() {
                     scaleType = ImageView.ScaleType.CENTER_CROP
                     setPadding(0, 0, 0, 0)
 
-                    setOnClickListener { view ->
-                        if((viewModel.whiteWin.value == true) || (viewModel.blackWin.value == true) || (viewModel.draw.value == true)) {
-                            print("no click allowed")
-                        }
-                        else {
-                            val index = board.indexOfChild(view)
-                            val row = index / board.columnCount
-                            val col = index % board.columnCount
-                            viewModel.move(row, col)
-                        }
-                    }
+//                    setOnClickListener { view ->
+//                        if((viewModel.whiteWin.value == true) || (viewModel.blackWin.value == true) || (viewModel.draw.value == true)) {
+//                            print("no click allowed")
+//                        }
+//                        else {
+//                            val index = board.indexOfChild(view)
+//                            val row = index / board.columnCount
+//                            val col = index % board.columnCount
+//                            viewModel.move(row, col)
+//                        }
+//                    }
 
                 }
                 val params = GridLayout.LayoutParams().apply {
@@ -70,6 +91,12 @@ class MainActivity : AppCompatActivity() {
             rowCount++
         }
 
+        board.post {
+            cursorX = (board.width - cursor.width) / 2.toFloat()
+            cursorY = (board.height - cursor.height) / 2.toFloat()
+            cursor.x = cursorX
+            cursor.y = cursorY
+        }
 
         viewModel.validMoveFlag.observe(this) {
             if(viewModel.getValidMove() == false) {
@@ -147,13 +174,88 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        clickBtn.setOnClickListener {
+            val location = IntArray(2)
+            cursor.getLocationOnScreen(location)
+            val x = location[0] + cursor.width / 2
+            val y = location[1] + cursor.height / 2
+            var clickedView: ImageView? = null
+
+            // Find the child view (tile) at the cursor position
+            for (i in 0 until board.childCount) {
+                val child = board.getChildAt(i)
+                val locationChild = IntArray(2)
+                child.getLocationOnScreen(locationChild)
+                if (x >= locationChild[0] && x < locationChild[0] + child.width &&
+                    y >= locationChild[1] && y < locationChild[1] + child.height
+                ) {
+                    clickedView = child as ImageView
+                    break
+                }
+            }
+
+            // Perform the move if a valid tile is clicked
+            if (clickedView != null) {
+                val index = board.indexOfChild(clickedView)
+                val row = index / board.columnCount
+                val col = index % board.columnCount
+                viewModel.move(row, col)
+            }
+        }
+
 
     }
 
-    // todo uncomment when entry point becomes login
-//    override fun onResume() {
-//        super.onResume()
-//        val uid = intent.getStringExtra("uid")
-//        viewModel.setUid(uid!!)
-//    }
+    override fun onSensorChanged(event: SensorEvent?) {
+        if (event != null) {
+            if (event.sensor == gyroscope) {
+                if (!isGyroscopeInitialized) {
+                    lastGyroscope[0] = event.values[0]
+                    lastGyroscope[1] = event.values[1]
+                    lastGyroscope[2] = event.values[2]
+                    isGyroscopeInitialized = true
+                } else {
+                    val deltaY = event.values[0] - lastGyroscope[0] // Use deltaY for left-right movement
+                    val deltaX = event.values[1] - lastGyroscope[1] // Use deltaX for up-down movement
+
+                    cursorX += deltaX * sensitivity
+                    cursorY += deltaY * sensitivity
+
+                    // Limit the cursor movement to the board bounds
+                    val boardLeft = board.x
+                    val boardTop = board.y
+                    val boardRight = boardLeft + board.width - cursor.width
+                    val boardBottom = boardTop + board.height - cursor.height
+
+                    cursorX = cursorX.coerceIn(boardLeft, boardRight)
+                    cursorY = cursorY.coerceIn(boardTop, boardBottom)
+
+                    // Update the cursor position
+                    cursor.x = cursorX
+                    cursor.y = cursorY
+                }
+            }
+        }
+    }
+
+    override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
+        // Not necessary for gyroscope
+    }
+
+    override fun onResume() {
+        super.onResume()
+        val uid = intent.getStringExtra("uid")
+        viewModel.setUid(uid!!)
+        gyroscope?.let {
+            sensorManager.registerListener(this, it, SensorManager.SENSOR_DELAY_NORMAL)
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        gyroscope?.let {
+            sensorManager.unregisterListener(this)
+        }
+    }
+
 }
