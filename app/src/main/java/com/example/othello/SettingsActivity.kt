@@ -1,10 +1,12 @@
 //Lucas Myers
 package com.example.othello
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.ImageButton
 import androidx.appcompat.app.AppCompatActivity
@@ -40,6 +42,10 @@ class SettingsActivity : AppCompatActivity() {
         }
 
         setSensBtn.setOnClickListener {
+            currentFocus?.let {
+                val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                imm?.hideSoftInputFromWindow(it.windowToken, 0)
+            }
             if(sensInput.text.toString().toFloat() < 200 || sensInput.text.toString().toFloat() > 1) {
                 viewModel.setSens(sensInput.text.toString().toFloat())
                 Snackbar.make(
