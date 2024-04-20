@@ -26,10 +26,10 @@ class SettingsActivity : AppCompatActivity() {
         val sensInput = findViewById<TextInputEditText>(R.id.sensInput)
 
         backBtn.setOnClickListener {
-            if(viewModel.sens.value!! > 200 || viewModel.sens.value!! < 0){
+            if(viewModel.sens.value!! > 100 || viewModel.sens.value!! < 0){
                 Snackbar.make(
                     backBtn,
-                    "Sensitivity must be between 1 and 200",
+                    "Sensitivity must be between 1 and 100",
                     Snackbar.LENGTH_LONG
                 ).show()
             }
@@ -46,7 +46,7 @@ class SettingsActivity : AppCompatActivity() {
                 val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
                 imm?.hideSoftInputFromWindow(it.windowToken, 0)
             }
-            if(sensInput.text.toString().toFloat() < 200 || sensInput.text.toString().toFloat() > 1) {
+            if(sensInput.text.toString().toFloat() < 100 || sensInput.text.toString().toFloat() > 1) {
                 viewModel.setSens(sensInput.text.toString().toFloat())
                 Snackbar.make(
                     backBtn,
